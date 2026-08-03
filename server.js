@@ -14,9 +14,9 @@ const HISTORY_FILE = path.join(DATA_DIR, 'history.json');
 const HISTORY_LIMIT = 200;
 const TOKEN_TTL = 10 * 60 * 1000;
 const MAX_UPLOAD = 5 * 1024 * 1024;
-const ADMIN_NICK = 'xergno';
-const ADMIN_PASS = 'denpa666';
-const GATE_PASS = 'simbionte67';
+const ADMIN_NICK = process.env.ADMIN_NICK || 'xergno';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'denpa666';
+const GATE_PASS = process.env.GATE_PASS || 'simbionte67';
 const GATE_COOKIE = 'angel_gate';
 const gateTokens = new Set();
 
