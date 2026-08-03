@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>#angel-denpa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="chat-body">
+  <div class="crt"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <main class="terminal chat-terminal">
+    <div class="winbar">
+      <span class="winbar-title">✦ ANGEL DENPA CHAT — Message Client</span>
+      <span class="winbar-btns">
+        <span class="winbtn">─</span>
+        <span class="winbtn">▢</span>
+        <span class="winbtn danger" id="quitBtn">✕</span>
+      </span>
+    </div>
+
+    <div class="chanbar">
+      <span class="chan-name">✦ #angel-denpa</span>
+      <span class="chan-info">bienvenida: escribe /help si te pierdes ~</span>
+    </div>
+
+    <div class="chat-layout">
+      <section class="messages" id="messages" aria-live="polite"></section>
+
+      <aside class="sidebar">
+        <div class="sidebar-title">✦ USUARIOS</div>
+        <ul class="userlist" id="userList"></ul>
+        <div class="sidebar-status" id="connStatus">conectando...</div>
+      </aside>
+    </div>
+
+    <div class="kaomoji-tray" id="kaoTray" hidden></div>
+
+    <form class="inputline" id="inputForm">
+      <button type="button" class="tool-btn" id="kaoBtn" title="kaomojis">ヽ(´▽`)/</button>
+      <button type="button" class="tool-btn" id="uploadBtn" title="subir imagen">🖼</button>
+      <input type="file" id="fileInput" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" hidden />
+      <span class="prompt">&gt;</span>
+      <input type="text" id="msgInput" class="cmd-input" autocomplete="off" placeholder="escribe un mensaje... /help" />
+      <button type="submit" class="tool-btn send-btn" id="sendBtn">Enviar ➤</button>
+    </form>
+  </main>
+
+  <script src="js/chat.js"></script>
+</body>
+</html>

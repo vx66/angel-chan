@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Angel Denpa Chat // login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="login-body">
+  <div class="crt"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <main class="terminal login-terminal" id="terminal">
+    <div class="winbar">
+      <span class="winbar-title">✦ ANGEL_DENPA_CHAT.EXE ✦</span>
+      <span class="winbar-btns">
+        <span class="winbtn">─</span>
+        <span class="winbtn">▢</span>
+        <span class="winbtn danger">✕</span>
+      </span>
+    </div>
+
+    <pre class="angel-art glitch" data-text="(◕‿◕✿)&#10;   /|\">    ◜★◝
+   (◕‿◕✿)
+    /|\
+    / \</pre>
+
+    <div class="sparkles">✧ ♡ ★ ✧ ★ ♡ ✧</div>
+
+    <div class="boot" id="bootLines"></div>
+
+    <div class="login-line" id="loginLine" style="display:none">
+      <span class="prompt">&gt;</span>
+      <span class="login-question">Quien eres?</span>
+      <form id="loginForm" class="login-form">
+        <input type="text" id="nickInput" class="cmd-input" autocomplete="off" maxlength="20" autofocus />
+        <button type="submit" class="tool-btn connect-btn" id="connectBtn">Conectar</button>
+      </form>
+    </div>
+
+    <div id="loginError" class="login-error"></div>
+
+    <div class="login-footer">
+      <a href="/admin" class="admin-link">⚙ Admin</a>
+    </div>
+  </main>
+
+  <div class="loading-overlay" id="loadingOverlay" hidden>
+    <div class="linux-boot">
+      <div class="linux-header">ANGEL_DENPA OS 0.0.1 <span class="linux-cursor">_</span></div>
+      <div class="linux-lines" id="linuxLines"></div>
+      <div class="linux-progress">
+        <span class="linux-pct" id="linuxPct">0%</span>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <div class="linux-status" id="loadingStatus"></div>
+    </div>
+  </div>
+
+  <script src="js/login.js"></script>
+</body>
+</html>

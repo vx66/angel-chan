@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⛔ ANGEL DENPA — Acceso Restringido</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="login-body">
+  <div class="crt"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <main class="terminal login-terminal gate-lock" id="terminal">
+    <div class="winbar">
+      <span class="winbar-title">✦ ANGEL_DENPA_ACCESS.EXE ✦</span>
+      <span class="winbar-btns">
+        <span class="winbtn">─</span>
+        <span class="winbtn">▢</span>
+        <span class="winbtn danger">✕</span>
+      </span>
+    </div>
+
+    <pre class="angel-art glitch" data-text="(◕‿◕✿)&#10;   /|\">    ◜★◝
+    (◕‿◕✿)
+     /|\
+     / \</pre>
+
+    <div class="sparkles">✧ ♡ ★ ✧ ★ ♡ ✧</div>
+
+    <p class="gate-title">Sólo denpas autorizados pueden ingresar a este chat</p>
+
+    <form id="gateForm" class="login-form gate-form-lock" method="POST" action="/gate">
+      <label class="gate-label-lock" for="gatePass">🔒 Ingresar contraseña</label>
+      <input type="password" id="gatePass" name="password" class="cmd-input pass-input" placeholder="••••••••••••" autocomplete="off" required autofocus />
+      <button type="submit" class="tool-btn connect-btn gate-btn-lock">Entrar ➤</button>
+    </form>
+
+    <p id="gateError" class="login-error">✕ Contraseña incorrecta. Intenta de nuevo, denpa.</p>
+
+    <div class="login-footer">
+      <span class="gate-hint">ANGEL_DENPA://gate · v2.0.2</span>
+    </div>
+  </main>
+
+  <script>
+    const err = document.getElementById('gateError');
+    if (location.search.includes('error=1')) err.classList.add('show');
+    document.getElementById('gateForm').addEventListener('submit', () => err.classList.remove('show'));
+  </script>
+</body>
+</html>

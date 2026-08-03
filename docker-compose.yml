@@ -1,0 +1,15 @@
+services:
+  angel-chat:
+    build: .
+    container_name: angel-chat
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+    ports:
+      - "8080:8080"
+    volumes:
+      - angel-chat-data:/app/data
+
+volumes:
+  angel-chat-data:

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard // Angel Denpa Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="admin-body">
+  <div class="crt"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <main class="terminal admin-terminal">
+    <div class="winbar">
+      <span class="winbar-title">✦ ADMIN DASHBOARD — ANGEL DENPA CHAT</span>
+      <span class="winbar-btns">
+        <span class="winbtn">─</span>
+        <span class="winbtn">▢</span>
+        <a class="winbtn danger" href="/" title="salir">✕</a>
+      </span>
+    </div>
+
+    <section id="admLogin" class="adm-login">
+      <pre class="angel-art">   ⚙
+  /|ヽ
+  /_\</pre>
+      <div class="adm-title">Panel de administrador</div>
+      <div class="adm-form">
+        <label for="admUser">Usuario</label>
+        <input type="text" id="admUser" class="cmd-input" value="xergno" readonly />
+        <label for="admPass">Contraseña</label>
+        <input type="password" id="admPass" class="cmd-input" autocomplete="off" maxlength="64" placeholder="denpa..." />
+        <button type="button" id="admEnter" class="tool-btn">Entrar</button>
+      </div>
+      <div id="admError" class="login-error"></div>
+    </section>
+
+    <section id="admDash" class="adm-dash" hidden>
+      <div class="adm-cols">
+        <div class="adm-col adm-users-col">
+          <div class="sidebar-title">✦ USUARIOS CONECTADOS</div>
+          <ul class="userlist" id="admUsers"></ul>
+        </div>
+        <div class="adm-col messages" id="admMsgs"></div>
+      </div>
+      <div class="adm-actions">
+        <span class="sidebar-status" id="admStatus">conectando...</span>
+        <div class="adm-btns">
+          <button type="button" class="tool-btn" id="admRefresh">↻ actualizar</button>
+          <a class="tool-btn" href="/chat">ir al chat</a>
+          <button type="button" class="tool-btn danger" id="admLogout">salir</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
