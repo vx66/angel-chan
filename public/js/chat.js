@@ -8,6 +8,19 @@ const kaoBtn = document.getElementById('kaoBtn');
 const kaoTray = document.getElementById('kaoTray');
 const uploadBtn = document.getElementById('uploadBtn');
 const fileInput = document.getElementById('fileInput');
+const darkBtn = document.getElementById('darkBtn');
+
+function applyDark(on) {
+  document.body.classList.toggle('dark', on);
+  darkBtn.textContent = on ? '☀️' : '🌙';
+  darkBtn.title = on ? 'modo claro' : 'modo oscuro';
+}
+applyDark(localStorage.getItem('angel_dark') === '1');
+darkBtn.addEventListener('click', () => {
+  const on = !document.body.classList.contains('dark');
+  applyDark(on);
+  localStorage.setItem('angel_dark', on ? '1' : '0');
+});
 
 const token = sessionStorage.getItem('angel_token');
 const savedNick = localStorage.getItem('angel_nick') || '';

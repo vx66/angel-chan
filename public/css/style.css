@@ -941,3 +941,147 @@ a.tool-btn { text-decoration: none; }
   .winbar { font-size: 8px; padding: 6px 8px; }
   .kaomoji-tray { padding: 6px 8px; }
 }
+
+/* ---------- dark mode (linux terminal) ---------- */
+
+.dark-toggle {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 60;
+  background: #fff;
+  border: 3px solid var(--deep);
+  box-shadow: 3px 3px 0 var(--deep);
+  color: var(--blue);
+  font-size: 20px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: transform 0.05s, box-shadow 0.05s;
+}
+.dark-toggle:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--deep); }
+
+body.dark {
+  --bg: #00060a;
+  --bg2: #020c08;
+  --panel: #010a06;
+  --blue: #2dff5e;
+  --accent: #2dff5e;
+  --blue-soft: #06240f;
+  --deep: #19c149;
+  --deep-soft: #04200c;
+  --cyan: #2dff5e;
+  --teal: #2dff5e;
+  --green: #2dff5e;
+  --yellow: #c9ff4d;
+  --orange: #ff9e4d;
+  --purple: #4dffb8;
+  --red: #ff5f5f;
+  --text: #2dff5e;
+  --dim: #2d9e50;
+  --glow: rgba(45, 255, 94, 0.5);
+}
+
+body.dark {
+  background: radial-gradient(ellipse at center, rgba(45, 255, 94, 0.07), transparent 62%), #000;
+}
+
+body.dark .crt {
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.45) 100%);
+}
+body.dark .vignette { box-shadow: inset 0 0 170px 45px rgba(0, 0, 0, 0.75); }
+
+body.dark .terminal {
+  background: linear-gradient(180deg, #010a06, #00050a);
+  border-color: var(--deep);
+  outline-color: var(--deep);
+  box-shadow:
+    0 0 0 8px var(--deep-soft),
+    0 0 34px var(--glow),
+    inset 0 0 46px rgba(45, 255, 94, 0.06);
+}
+
+body.dark .winbar {
+  background: linear-gradient(90deg, #04170b, #03120a);
+  border-bottom-color: var(--deep);
+  color: var(--text);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7);
+}
+
+body.dark .winbtn {
+  background: #00130a;
+  border-color: var(--text);
+  color: var(--text);
+}
+
+body.dark .chanbar {
+  background: linear-gradient(90deg, #03120a, #04170b);
+  border-bottom-color: var(--deep);
+}
+body.dark .chan-name { color: var(--text); }
+body.dark .chan-info { color: var(--dim); }
+
+body.dark .messages {
+  background: #000;
+  color: var(--text);
+}
+body.dark .messages::-webkit-scrollbar-thumb { border-color: #000; }
+
+body.dark .sidebar {
+  border-left-color: var(--deep);
+  background: linear-gradient(180deg, #03120a, #02100a);
+}
+body.dark .sidebar-title {
+  color: var(--text);
+  border-bottom-color: var(--deep);
+  text-shadow: 0 0 6px rgba(45, 255, 94, 0.5);
+}
+body.dark .user:hover { background: rgba(45, 255, 94, 0.08); }
+body.dark .sidebar-status {
+  border-top-color: var(--deep);
+  text-shadow: 0 0 5px rgba(45, 255, 94, 0.5);
+}
+
+body.dark .inputline {
+  border-top-color: var(--deep);
+  background: linear-gradient(90deg, #03120a, #020c08);
+}
+
+body.dark .tool-btn {
+  background: #00130a;
+  border-color: var(--deep);
+  color: var(--text);
+  box-shadow: 3px 3px 0 var(--deep);
+}
+body.dark .tool-btn.send-btn {
+  background: var(--deep);
+  color: #00130a;
+  border-color: #00130a;
+}
+body.dark .tool-btn.send-btn:hover { background: var(--blue); }
+
+body.dark .kaomoji-tray {
+  border-top-color: var(--deep);
+  background: linear-gradient(90deg, #03120a, #02100a);
+}
+body.dark .kao-btn {
+  background: #00130a;
+  border-color: var(--deep);
+  color: var(--text);
+}
+body.dark .kao-btn:hover { background: var(--blue-soft); }
+
+body.dark .edit-input {
+  background: #000;
+  border-color: var(--deep);
+  color: var(--text);
+}
+
+body.dark .msg-line.system { color: var(--deep); }
+body.dark .time { color: var(--dim); }
+body.dark .self-tag { color: var(--dim); }
+
+body.dark .dark-toggle {
+  background: #00130a;
+  border-color: var(--text);
+  box-shadow: 3px 3px 0 var(--text);
+}
