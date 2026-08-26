@@ -5,7 +5,8 @@
   "description": "Angel Chat - mensajería instantánea estilo IRC con estética NEEDY GIRL OVERDOSE",
   "main": "server.js",
   "scripts": {
-    "start": "node --env-file=.env server.js",
+    "start": "node server.js",
+    "start:local": "node --env-file=.env server.js",
     "check": "node --check server.js && node --check public/js/gate-session.js && node --check public/js/login.js && node --check public/js/chat.js && node --check public/js/admin.js"
   },
   "engines": {

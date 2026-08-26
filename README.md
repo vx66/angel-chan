@@ -28,7 +28,7 @@ Edita `.env` y reemplaza las contraseñas de ejemplo. Después ejecuta:
 
 ```powershell
 npm run check
-npm start
+npm run start:local
 ```
 
 La aplicación queda disponible en `http://localhost:8080` de forma predeterminada.
@@ -45,6 +45,8 @@ La aplicación queda disponible en `http://localhost:8080` de forma predetermina
 | `COOKIE_SECURE` | Usa cookies solo por HTTPS | `false` local, `true` en producción HTTPS |
 
 El servidor no arranca si faltan `ADMIN_PASS` o `GATE_PASS`. El archivo `.env` está excluido de Git; solo `.env.example` debe subirse.
+
+En plataformas como Dokploy, que inyectan las variables de entorno, el comando de inicio es `npm start` y no necesita un archivo `.env` dentro del despliegue. Configura el puerto HTTP del servicio como `8080`, salvo que hayas definido otro valor en `PORT`.
 
 ## Docker Compose
 
