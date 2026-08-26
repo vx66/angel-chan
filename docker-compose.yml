@@ -1,7 +1,6 @@
 services:
   angel-chat:
     build: .
-    container_name: angel-chat
     restart: unless-stopped
     environment:
       PORT: 8080
