@@ -169,6 +169,17 @@ function msgLine(entry, isSelf) {
     }
   }
 
+  if (isSelf) {
+    const delBtn = document.createElement('button');
+    delBtn.className = 'msg-action del';
+    delBtn.textContent = '✕';
+    delBtn.title = 'borrar';
+    delBtn.addEventListener('click', () => {
+      if (confirm('¿Borrar este mensaje?')) ws.send(JSON.stringify({ type: 'delete', id: entry.id }));
+    });
+    div.appendChild(delBtn);
+  }
+
   appendLine(div);
 }
 
@@ -243,9 +254,11 @@ document.addEventListener('visibilitychange', () => {
 });
 
 function redirectToLogin() {
+  sessionStorage.removeItem('angel_gate_session');
   sessionStorage.removeItem('angel_token');
+  sessionStorage.removeItem('angel_role');
   localStorage.removeItem('angel_nick');
-  window.location.replace('/');
+  window.location.replace('/gate');
 }
 
 function insertAtCursor(input, text) {
@@ -315,6 +328,10 @@ function connect() {
         if (line) line.remove();
         break;
       }
+      case 'history_cleared':
+        messagesEl.innerHTML = '';
+        systemLine('El chat quedó vacío. La conversación anterior fue archivada y eliminada.');
+        break;
       case 'error':
         privateLine('ERROR: ' + msg.text);
         setTimeout(redirectToLogin, 1500);

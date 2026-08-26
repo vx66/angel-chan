@@ -8,20 +8,26 @@ const PORT = process.env.PORT || 8080;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const DATA_DIR = path.join(__dirname, 'data');
 const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
-const LOG_FILE = path.join(DATA_DIR, 'chat.log');
+const LOGS_DIR = path.join(DATA_DIR, 'logs');
 const HISTORY_FILE = path.join(DATA_DIR, 'history.json');
 
 const HISTORY_LIMIT = 200;
 const TOKEN_TTL = 10 * 60 * 1000;
 const MAX_UPLOAD = 5 * 1024 * 1024;
 const ADMIN_NICK = process.env.ADMIN_NICK || 'xergno';
-const ADMIN_PASS = process.env.ADMIN_PASS || 'denpa666';
-const GATE_PASS = process.env.GATE_PASS || 'simbionte67';
+const ADMIN_PASS = process.env.ADMIN_PASS;
+const GATE_PASS = process.env.GATE_PASS;
+const COOKIE_SECURE = process.env.COOKIE_SECURE === 'true';
 const GATE_COOKIE = 'angel_gate';
 const gateTokens = new Set();
 
+if (!ADMIN_PASS || !GATE_PASS) {
+  throw new Error('Faltan las variables de entorno ADMIN_PASS y/o GATE_PASS. Revisa tu archivo .env.');
+}
+
 fs.mkdirSync(DATA_DIR, { recursive: true });
 fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+fs.mkdirSync(LOGS_DIR, { recursive: true });
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -46,6 +52,8 @@ const UPLOAD_EXTS = ['png', 'jpg', 'gif', 'webp', 'bmp'];
 // ---------------------------------------------------------------
 
 let history = [];
+let sessionAudit = [];
+let chatStartedAt = null;
 try {
   const raw = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
   if (Array.isArray(raw)) history = raw.slice(-HISTORY_LIMIT);
@@ -54,11 +62,17 @@ try {
 }
 
 function persistHistory() {
-  fs.writeFile(HISTORY_FILE, JSON.stringify(history.slice(-HISTORY_LIMIT)), () => {});
+  try {
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(history.slice(-HISTORY_LIMIT)));
+    return true;
+  } catch (err) {
+    console.error('No se pudo guardar el historial activo:', err.message);
+    return false;
+  }
 }
 
 function appendLog(line) {
-  fs.appendFile(LOG_FILE, line + '\n', () => {});
+  sessionAudit.push(line);
 }
 
 function now() {
@@ -67,14 +81,72 @@ function now() {
   return `${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
-function logStamp() {
-  const d = new Date();
+function logStamp(d = new Date()) {
   const p = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
+function archiveStamp(d) {
+  const p = (n, size = 2) => String(n).padStart(size, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}-${p(d.getSeconds())}-${p(d.getMilliseconds(), 3)}`;
+}
+
+function historyEntryToLog(entry) {
+  const stamp = `[${entry.time || '--:--'}]`;
+  if (entry.type === 'system') return `${stamp} * ${entry.text || ''}`;
+  if (entry.type === 'image') return `${stamp} <${entry.nick || '?'}> compartió una imagen: ${entry.url || ''}`;
+  return `${stamp} <${entry.nick || '?'}> ${entry.text || ''}${entry.edited ? ' (editado)' : ''}`;
+}
+
+function startChatSession() {
+  chatStartedAt = new Date();
+  sessionAudit = [];
+}
+
+function archiveAndClearConversation(reason, notifyClients = true) {
+  if (history.length === 0 && sessionAudit.length === 0) {
+    chatStartedAt = null;
+    return true;
+  }
+
+  const closedAt = new Date();
+  const transcript = sessionAudit.length > 0 ? sessionAudit : history.map(historyEntryToLog);
+  const filePath = path.join(LOGS_DIR, `chat-${archiveStamp(closedAt)}.log`);
+  const contents = [
+    'ANGEL DENPA CHAT — LOG INTERNO',
+    `Inicio: ${chatStartedAt ? logStamp(chatStartedAt) : 'desconocido'}`,
+    `Cierre: ${logStamp(closedAt)}`,
+    `Motivo: ${reason}`,
+    `Eventos registrados: ${transcript.length}`,
+    '',
+    ...transcript,
+    ''
+  ].join('\n');
+
+  try {
+    // El log se escribe primero: el historial solo se borra si el archivo quedó guardado.
+    fs.writeFileSync(filePath, contents, 'utf8');
+    fs.writeFileSync(HISTORY_FILE, '[]', 'utf8');
+  } catch (err) {
+    console.error('No se pudo archivar el chat; el historial se conserva:', err.message);
+    return false;
+  }
+
+  history = [];
+  sessionAudit = [];
+  chatStartedAt = null;
+  if (notifyClients) broadcast({ type: 'history_cleared' });
+  console.log(`📋 Chat archivado en ${filePath}`);
+  return true;
+}
+
 function randomId() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+function ownedEntry(entry, state) {
+  Object.defineProperty(entry, 'ownerId', { value: state.clientId });
+  return entry;
 }
 
 function parseCookies(header) {
@@ -95,11 +167,21 @@ function gateOk(req) {
 function grantGate(res) {
   const token = crypto.randomBytes(24).toString('hex');
   gateTokens.add(token);
-  res.writeHead(302, {
-    Location: '/',
-    'Set-Cookie': `${GATE_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Strict`
+  res.writeHead(200, {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'no-store',
+    'Set-Cookie': `${GATE_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Strict${COOKIE_SECURE ? '; Secure' : ''}`
   });
-  return res.end();
+  return res.end(`<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Acceso concedido</title></head>
+<body>
+  <script>
+    sessionStorage.setItem('angel_gate_session', 'active');
+    window.location.replace('/');
+  </script>
+</body>
+</html>`);
 }
 
 // ---------------------------------------------------------------
@@ -108,6 +190,22 @@ function grantGate(res) {
 
 const server = http.createServer((req, res) => {
   const urlPath = decodeURIComponent(req.url.split('?')[0]);
+
+  if (req.method === 'GET' && urlPath === '/health') {
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store'
+    });
+    return res.end(JSON.stringify({ status: 'ok' }));
+  }
+
+  if (req.method === 'GET' && urlPath === '/config.js') {
+    res.writeHead(200, {
+      'Content-Type': 'application/javascript; charset=utf-8',
+      'Cache-Control': 'no-store'
+    });
+    return res.end(`window.ANGEL_CONFIG = ${JSON.stringify({ adminNick: ADMIN_NICK })};`);
+  }
 
   // ---------- página de acceso (gate) ----------
   if (urlPath === '/gate') {
@@ -121,10 +219,6 @@ const server = http.createServer((req, res) => {
         return res.end();
       });
       return;
-    }
-    if (gateOk(req)) {
-      res.writeHead(302, { Location: '/' });
-      return res.end();
     }
     const gatePath = path.join(PUBLIC_DIR, 'gate.html');
     fs.stat(gatePath, (err, stat) => {
@@ -263,6 +357,12 @@ function send(ws, msg) {
   if (ws.readyState === 1) ws.send(JSON.stringify(msg));
 }
 
+// Si el proceso anterior terminó con gente conectada, se archiva ese historial
+// antes de aceptar una conversación nueva.
+if (history.length > 0) {
+  archiveAndClearConversation('historial recuperado después de reiniciar el servidor', false);
+}
+
 function pushHistory(msg) {
   history.push(msg);
   if (history.length > HISTORY_LIMIT) history.shift();
@@ -375,7 +475,7 @@ wss.on('connection', (ws, req) => {
     ws.close(1008, 'acceso denegado');
     return;
   }
-  let state = { nick: null, token: null, role: 'user', ip: getIP(req) };
+  let state = { nick: null, token: null, role: 'user', ip: getIP(req), clientId: randomId() };
 
   ws.on('message', (raw) => {
     let msg;
@@ -394,7 +494,7 @@ wss.on('connection', (ws, req) => {
           return send(ws, { type: 'error', text: 'Escribe tu nombre antes de entrar.' });
         }
         if (nick.toLowerCase() === ADMIN_NICK) {
-          return send(ws, { type: 'unavailable', text: '"xergno" está reservado para el administrador. Usa el botón ⚙ Admin.' });
+          return send(ws, { type: 'unavailable', text: `"${ADMIN_NICK}" está reservado para el administrador. Usa el botón ⚙ Admin.` });
         }
         if (nickInUse(nick)) {
           return send(ws, { type: 'unavailable', text: `El nombre "${nick}" ya está en uso. Elige otro.` });
@@ -435,6 +535,7 @@ wss.on('connection', (ws, req) => {
           if (nickInUse(nick)) {
             return send(ws, { type: 'error', text: `El nombre "${nick}" ya está en uso. Elige otro.` });
           }
+          if (clients.size === 0) startChatSession();
           clients.set(ws, state);
           addSystem(`◇ ${nick} ha entrado al canal.`);
         }
@@ -479,6 +580,7 @@ wss.on('connection', (ws, req) => {
       if (tstate.token) tokens.delete(tstate.token);
       addSystem(`◇ ${state.nick} expulsó a ${tstate.nick}.`);
       send(tws, { type: 'kicked', text: 'Has sido expulsado por el administrador.' });
+      if (clients.size === 0) archiveAndClearConversation('todos los participantes abandonaron el chat');
       tws.close();
       return;
     }
@@ -519,7 +621,7 @@ wss.on('connection', (ws, req) => {
       }
 
       if (!text.trim()) return;
-      const entry = { type: 'message', nick: state.nick, text, time: now(), id: randomId() };
+      const entry = ownedEntry({ type: 'message', nick: state.nick, text, time: now(), id: randomId() }, state);
       pushHistory(entry);
       appendLog(`[${logStamp()}] <${state.nick}> ${text}`);
       broadcast(entry);
@@ -529,7 +631,7 @@ wss.on('connection', (ws, req) => {
     if (msg.type === 'edit') {
       const entry = history.find((m) => m.id === msg.id);
       if (!entry || entry.type !== 'message') return;
-      if (entry.nick !== state.nick) return send(ws, { type: 'private', text: 'Solo puedes editar tus propios mensajes.' });
+      if (entry.ownerId !== state.clientId) return send(ws, { type: 'private', text: 'Solo puedes editar tus propios mensajes.' });
       const text = sanitizeText(msg.text);
       if (!text) return;
       entry.text = text;
@@ -541,12 +643,15 @@ wss.on('connection', (ws, req) => {
     }
 
     if (msg.type === 'delete') {
-      if (state.role !== 'admin') return send(ws, { type: 'private', text: 'Solo el administrador puede borrar mensajes.' });
       const idx = history.findIndex((m) => m.id === msg.id);
       if (idx >= 0) {
+        const entry = history[idx];
+        const canDelete = state.role === 'admin' || entry.ownerId === state.clientId;
+        if (!canDelete) return send(ws, { type: 'private', text: 'Solo puedes borrar tus propios mensajes.' });
         const [removed] = history.splice(idx, 1);
         persistHistory();
-        appendLog(`[${logStamp()}] * admin ${state.nick} borró un mensaje de ${removed.nick}`);
+        const actor = state.role === 'admin' && removed.nick !== state.nick ? `admin ${state.nick}` : state.nick;
+        appendLog(`[${logStamp()}] * ${actor} borró un mensaje de ${removed.nick}`);
         broadcast({ type: 'message_deleted', id: removed.id });
       }
       return;
@@ -557,7 +662,7 @@ wss.on('connection', (ws, req) => {
       if (!/^\/uploads\/[a-f0-9]+\.(png|jpg|gif|webp|bmp)$/i.test(url)) return;
       fs.access(path.join(UPLOADS_DIR, path.basename(url)), fs.constants.F_OK, (err) => {
         if (err) return;
-        const entry = { type: 'image', nick: state.nick, url, time: now(), id: randomId() };
+        const entry = ownedEntry({ type: 'image', nick: state.nick, url, time: now(), id: randomId() }, state);
         pushHistory(entry);
         appendLog(`[${logStamp()}] <${state.nick}> compartió una imagen: ${url}`);
         broadcast(entry);
@@ -571,12 +676,13 @@ wss.on('connection', (ws, req) => {
       clients.delete(ws);
       if (state.token) tokens.delete(state.token);
       addSystem(`◇ ${state.nick} ha salido del canal.`);
+      if (clients.size === 0) archiveAndClearConversation('todos los participantes abandonaron el chat');
     }
   });
 });
 
 server.listen(PORT, () => {
   console.log(`☁  Angel Denpa Chat corriendo en http://localhost:${PORT}`);
-  console.log(`✦  Admin: ${ADMIN_NICK} / ${ADMIN_PASS}`);
-  console.log(`📋  Log: ${LOG_FILE}`);
+  console.log(`✦  Administrador: ${ADMIN_NICK}`);
+  console.log(`📋  Logs internos: ${LOGS_DIR}`);
 });

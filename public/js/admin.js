@@ -10,7 +10,8 @@ const admStatus = document.getElementById('admStatus');
 const admRefresh = document.getElementById('admRefresh');
 const admLogout = document.getElementById('admLogout');
 
-const ADMIN_NICK = 'xergno';
+const ADMIN_NICK = window.ANGEL_CONFIG?.adminNick || 'xergno';
+admUser.value = ADMIN_NICK;
 
 const nickColors = {};
 const PALETTE = ['blue', 'cyan', 'teal', 'green', 'yellow', 'orange', 'purple', 'red'];
@@ -172,6 +173,10 @@ function handle(msg) {
       if (line) line.remove();
       break;
     }
+    case 'history_cleared':
+      admMsgsEl.innerHTML = '';
+      appendMsgEl('El chat quedó vacío. La conversación fue archivada y eliminada.', 'system');
+      break;
     case 'error':
       appendMsgEl('ERROR: ' + msg.text, 'private');
       break;
@@ -221,7 +226,9 @@ admRefresh.addEventListener('click', () => {
 });
 
 admLogout.addEventListener('click', () => {
+  sessionStorage.removeItem('angel_gate_session');
   sessionStorage.removeItem('angel_token');
+  sessionStorage.removeItem('angel_role');
   localStorage.removeItem('angel_nick');
-  window.location.replace('/');
+  window.location.replace('/gate');
 });

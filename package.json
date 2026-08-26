@@ -1,13 +1,23 @@
 {
   "name": "angel-chat",
   "version": "1.0.0",
+  "private": true,
   "description": "Angel Chat - mensajería instantánea estilo IRC con estética NEEDY GIRL OVERDOSE",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node --env-file=.env server.js",
+    "check": "node --check server.js && node --check public/js/gate-session.js && node --check public/js/login.js && node --check public/js/chat.js && node --check public/js/admin.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vx66/angel-chan.git"
+  },
+  "homepage": "https://github.com/vx66/angel-chan",
+  "bugs": {
+    "url": "https://github.com/vx66/angel-chan/issues"
   },
   "dependencies": {
     "ws": "^8.18.0"

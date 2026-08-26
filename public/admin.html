@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard // Angel Denpa Chat</title>
+  <script src="/js/gate-session.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
@@ -31,9 +32,9 @@
       <div class="adm-title">Panel de administrador</div>
       <div class="adm-form">
         <label for="admUser">Usuario</label>
-        <input type="text" id="admUser" class="cmd-input" value="xergno" readonly />
+        <input type="text" id="admUser" class="cmd-input" readonly />
         <label for="admPass">Contraseña</label>
-        <input type="password" id="admPass" class="cmd-input" autocomplete="off" maxlength="64" placeholder="denpa..." />
+        <input type="password" id="admPass" class="cmd-input" autocomplete="off" maxlength="64" placeholder="••••••••" />
         <button type="button" id="admEnter" class="tool-btn">Entrar</button>
       </div>
       <div id="admError" class="login-error"></div>
@@ -58,6 +59,7 @@
     </section>
   </main>
 
+  <script src="/config.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

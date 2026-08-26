@@ -47,6 +47,7 @@
   </main>
 
   <script>
+    sessionStorage.removeItem('angel_gate_session');
     const err = document.getElementById('gateError');
     if (location.search.includes('error=1')) err.classList.add('show');
     document.getElementById('gateForm').addEventListener('submit', () => err.classList.remove('show'));

@@ -2,6 +2,8 @@ node_modules
 data
 .git
 .gitignore
+.env
+.env.*
 *.log
 npm-debug.log
 test-tmp.js
